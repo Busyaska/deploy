@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Интерфейс разметки{% endblock %}
+
+{% block links %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
+{% block header %}
+<a href="{% url 'homepage:index' %}">
+  <div id="logo">
+    <img src="{% static 'images/logo1.png' %}" alt="Логотип" >
+  </div>
+</a>
+<nav>
+
+    <div class="nav-container">
+      <a href="{% url 'homepage:index' %}" class="nav-item">Главная</a>
+      <a href="{% url 'detection:detect_mammals' %}" class="nav-item">Детекция</a>
+      <a href="{% url 'detection:edit_detection' %}" class="nav-item">Редактировать детекцию</a>
+    </div>
+ 
+</nav>
+{% endblock %}
+
+{% block content %}
+<style> 
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .handle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: blue;
+    cursor: pointer;
+    display: none;
+    z-index: 5;
+  }
+
+  .top-left {
+    top: -3px;
+    left: -3px;
+  }
+
+  .top-right {
+    top: -3px;
+    left: -3px;
+  }
+
+  .bottom-left {
+    top: -3px;
+    left: -3px;
+  }
+
+  .bottom-right {
+    top: -3px;
+    left: -3px;
+  }
+</style>
+
+<div id="annotation-tool">
+  {% csrf_token %}
+  <div id="canvas-container" style="position: relative; display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <canvas id="image-layer" style="position: absolute; z-index: 1;"></canvas>
+    <canvas id="bbox-layer" style="position: absolute; z-index: 2;"></canvas>
+    <canvas id="crosshair-layer" style="position: absolute; z-index: 3;"></canvas>
+    <canvas id="interactive-layer" style="position: absolute; z-index: 4;"></canvas>
+
+    <div class="handle top-left" data-index="1"></div>
+    <div class="handle top-right" data-index="2"></div>
+    <div class="handle bottom-left" data-index="3"></div>
+    <div class="handle bottom-right" data-index="4"></div>
+  </div>
+
+  <div id="annotation-tool">
+    <div id="info-panel">
+        <p id="image-number">Изображение <span id="current-image"></span>/<span id="total-images"></span></p>
+        <button id="previous-button" class="button">Перейти к предыдущему</button>
+        <button id="next-button" class="button">Перейти к следующему</button>
+        <button id="complete-button" class="button">Завершить</button>   
+      </div>
+      <div id="bbox-info">
+        <h3>Annotation data</h3>
+        <p id="bbox-class"></p>
+        <button id="delete-bbox" class="button">Удалить</button>
+        <button id="change-class" class="button">Изменить класс</button>
+      </div>
+</div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  class NewDjangoData {
+
+    static #baseURL = '{{ django_url }}'
+    static #apiURL = '{{ api_url }}'
+    static #imageData = {{ image_data|safe }}
+    static #classData = {{ class_data|safe }}
+    static #totalImages = {{ amount }}
+
+    static get baseURL() {
+      return this.#baseURL;
+    };
+
+    static get apiURL() {
+      return this.#apiURL;
+    };
+
+    static get imageData() {
+      return this.#imageData;
+    };
+
+    static get classData() {
+      return this.#classData;
+    };
+
+    static get totalImages() {
+      return this.#totalImages;
+    };
+  };
+   
+</script>
+<script src="{% static 'js/annotation_tool_script.js' %}"></script>
+{% endblock %}
